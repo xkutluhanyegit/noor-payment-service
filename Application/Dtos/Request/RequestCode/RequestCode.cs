@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Request.RequestCode
 {
-    public class RequestCodeDataDto
+    public class RequestCode
     {
-        public string SmsToken { get; set; }
-        public int ExpiresInSeconds { get; set; }
+        public string tckn { get; set; }
     }
 }

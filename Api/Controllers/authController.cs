@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Constant.Messages;
 using Application.Dtos.Request.RequestCode;
 using Application.Dtos.Response.TokenResponse;
 using Application.Interfaces;
@@ -34,51 +35,59 @@ namespace Api.Controllers
         }
 
         [HttpPost("request-code")]
-        public async Task<IActionResult> request_code([FromBody] string tckn)
+        public async Task<IActionResult> request_code([FromBody] RequestCode requestCode)
         {
-            var result = await _yildatService.GetUserByTckn(tckn);
+            var result = await _yildatService.GetUserByTckn(requestCode.tckn);
             if (!result.Success)
             {
-                return BadRequest(result.Success);
+                return BadRequest(new ErrorDataResult<Yildat>(Messages.NotFoundTCKN));
             }
 
             var smsCode = _verificationSmsCodeService.GenerateCode(); // Generate Sms Code
             //SMS Service
             Console.WriteLine("[SMS] ->"+smsCode);
+
             _verificationSmsCodeService.SaveCode(result.Data.TelNo,smsCode); //Memorycache Telno ve Code 
 
-            var smsToken =  _tokenService.GenerateSmsVerificationToken(tckn); // Generate Token
+            var smsToken =  _tokenService.GenerateSmsVerificationToken(requestCode.tckn); // Generate Token
 
             var response = new TokenResponse(){
-                ExpireIn = "5",
+                ExpireInMinutes = "5",
                 Token = smsToken,
-                TokenType = "Bearer"
+                TokenType = "Bearer",
+                Description = "Tel No: "+result.Data.TelNo+" doğrulama kodu gönderildi."
             };
-
-            return Ok(new SuccessDataResult<TokenResponse>(response,"Success Token"));
+            return Ok(new SuccessDataResult<TokenResponse>(response,Messages.SuccessToken));
         }
 
         [Authorize(Policy = "SmsVerificationOnly")]
         [HttpPost("verify-code")]
-        public async Task<IActionResult> verify_code([FromBody] string smsCode)
+        public async Task<IActionResult> verify_code([FromBody] VerifyCode verifyCode)
         {
             var phoneNumber = User.Claims.FirstOrDefault(p=> p.Type == "phone").Value;
 
             if (string.IsNullOrEmpty(phoneNumber))
             {
-                return Unauthorized("Telefon numarası token içinde bulunamadı.");
+                return Unauthorized(new ErrorDataResult<TokenResponse>(Messages.PhoneClaimNotFound));
             }
 
             if (!_memoryCache.TryGetValue($"code:{phoneNumber}", out string cachedCode))
             {
-                return BadRequest("Doğrulama kodu süresi dolmuş.");
+                return BadRequest(new ErrorDataResult<TokenResponse>(Messages.ExpireSmsCode));
             }
 
-            var isValid = _verificationSmsCodeService.ValidateCode(phoneNumber,smsCode);
+            var isValid = _verificationSmsCodeService.ValidateCode(phoneNumber,verifyCode.smsCode);
+            
+            //Test Kontroller sonra silinecek
+            if (verifyCode.smsCode == "111111")
+            {
+                isValid = true;
+            }
+            
 
             if (!isValid)
             {
-                return BadRequest("Geçersiz doğrulama kodu.");
+                return BadRequest(new ErrorDataResult<TokenResponse>(Messages.InvalidSmsCode));
             }
 
             var tckn = User.Claims.FirstOrDefault(p=> p.Type == "tckn").Value;
@@ -86,12 +95,12 @@ namespace Api.Controllers
             var accessToken = _tokenService.GenerateAccessToken(tckn,phoneNumber);
 
             var response = new TokenResponse(){
-                ExpireIn = "5",
+                ExpireInMinutes = "5",
                 Token = accessToken,
                 TokenType = "Bearer"
             };
             
-            return Ok(new SuccessDataResult<TokenResponse>(response,"Success Token"));
+            return Ok(new SuccessDataResult<TokenResponse>(response,Messages.SuccessToken));
         }
 
         
