@@ -6,6 +6,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Domain.Utilities.Results.Implementations;
 using Domain.Utilities.Results.Interfaces;
+using Infrastructure.Persistence.Models.YildatDto;
 using Infrastructure.Persistence.Repositories.YildatRepository;
 
 namespace Application.Services
@@ -37,6 +38,16 @@ namespace Application.Services
                 return new ErrorDataResult<Yildat>(result);
             }
             return new SuccessDataResult<Yildat>(result);
+        }
+
+        public async Task<IDataResult<IEnumerable<yildatQueryDto>>> GetYildatsByTcknAsync(string tckn)
+        {
+            var result = await _yildatRepository.GetYildatsByTcknAsync(tckn);
+            if (result == null)
+            {
+                return new ErrorDataResult<IEnumerable<yildatQueryDto>>(result);
+            }
+            return new SuccessDataResult<IEnumerable<yildatQueryDto>>(result);
         }
     }
 }

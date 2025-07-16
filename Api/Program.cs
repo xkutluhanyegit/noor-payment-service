@@ -2,6 +2,7 @@ using System.Text;
 using Application.Interfaces;
 using Application.Services;
 using Infrastructure.Configurations;
+using Infrastructure.ExternalServices.KizilbukSmsService;
 using Infrastructure.Interfaces;
 using Infrastructure.Persistence.Contexts;
 using Infrastructure.Persistence.Repositories.YildatRepository;
@@ -24,7 +25,10 @@ builder.Services.AddScoped<IYildatService,YildatService>();
 builder.Services.AddScoped<IYildatRepository,YildatRepository>();
 
 builder.Services.AddScoped<IVerificationSmsCodeService,VerificationSmsCodeService>();
+builder.Services.AddScoped<IKizilbukSmsService,KizilbukSmsService>();
 builder.Services.AddScoped<ITokenService,TokenService>();
+builder.Services.AddScoped<IAuthRequestCodeService, AuthRequestCodeService>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddMemoryCache();
 

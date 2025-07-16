@@ -16,17 +16,60 @@ public partial class Noor17Context : DbContext
     {
     }
 
+    public virtual DbSet<DaireHaftum> DaireHafta { get; set; }
+
     public virtual DbSet<Yildat> Yildats { get; set; }
+
+    public virtual DbSet<YildatOdeme> YildatOdemes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=192.168.228.37;Port=5432;Database=NOOR17;Username=webadmin;Password=Sn569632");
+        => optionsBuilder.UseNpgsql("Host=192.168.228.37;Database=NOOR17;Username=webadmin;Password=Sn569632");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("C")
             .HasPostgresExtension("pg_trgm");
+
+        modelBuilder.Entity<DaireHaftum>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("daire_hafta_pkey");
+
+            entity.ToTable("daire_hafta", tb => tb.HasComment("Daire Hafta"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.BbsnNo)
+                .HasComment("BBSN NO")
+                .HasColumnType("character varying")
+                .HasColumnName("bbsn_no");
+            entity.Property(e => e.CreateDate)
+                .HasComment("Created on")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("create_date");
+            entity.Property(e => e.CreateUid)
+                .HasComment("Created by")
+                .HasColumnName("create_uid");
+            entity.Property(e => e.CrmDurumu)
+                .HasComment("CRM Durumu")
+                .HasColumnType("character varying")
+                .HasColumnName("crm_durumu");
+            entity.Property(e => e.DaireKimlik)
+                .HasComment("Daire Kimlik")
+                .HasColumnType("character varying")
+                .HasColumnName("daire_kimlik");
+            entity.Property(e => e.Name)
+                .HasComment("Daire Hafta Kimlik")
+                .HasColumnType("character varying")
+                .HasColumnName("name");
+            entity.Property(e => e.WriteDate)
+                .HasComment("Last Updated on")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("write_date");
+            entity.Property(e => e.WriteUid)
+                .HasComment("Last Updated by")
+                .HasColumnName("write_uid");
+        });
 
         modelBuilder.Entity<Yildat>(entity =>
         {
@@ -197,6 +240,67 @@ public partial class Noor17Context : DbContext
             entity.Property(e => e.YildatTutari)
                 .HasComment("Yıldat Tutarı")
                 .HasColumnName("yildat_tutari");
+
+            entity.HasOne(d => d.DaireHafta).WithMany(p => p.Yildats)
+                .HasForeignKey(d => d.DaireHaftaId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("yildat_daire_hafta_id_fkey");
+        });
+
+        modelBuilder.Entity<YildatOdeme>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("yildat_odeme_pkey");
+
+            entity.ToTable("yildat_odeme", tb => tb.HasComment("Yıldat Ödeme Detayları"));
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateDate)
+                .HasComment("Created on")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("create_date");
+            entity.Property(e => e.CreateUid)
+                .HasComment("Created by")
+                .HasColumnName("create_uid");
+            entity.Property(e => e.DaireHaftaId)
+                .HasComment("Daire Hafta Kimlik")
+                .HasColumnName("daire_hafta_id");
+            entity.Property(e => e.HizmetTuru)
+                .HasComment("Hizmet Türü")
+                .HasColumnType("character varying")
+                .HasColumnName("hizmet_turu");
+            entity.Property(e => e.OdemeTarihi)
+                .HasComment("Ödeme Tarihi")
+                .HasColumnName("odeme_tarihi");
+            entity.Property(e => e.OdemeTuru)
+                .HasComment("Ödeme Türü")
+                .HasColumnType("character varying")
+                .HasColumnName("odeme_turu");
+            entity.Property(e => e.SatirNo)
+                .HasComment("Satır No")
+                .HasColumnName("satir_no");
+            entity.Property(e => e.Tutar)
+                .HasComment("Ödeme Tutarı")
+                .HasColumnName("tutar");
+            entity.Property(e => e.WriteDate)
+                .HasComment("Last Updated on")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("write_date");
+            entity.Property(e => e.WriteUid)
+                .HasComment("Last Updated by")
+                .HasColumnName("write_uid");
+            entity.Property(e => e.YildatId)
+                .HasComment("Yıldat")
+                .HasColumnName("yildat_id");
+
+            entity.HasOne(d => d.DaireHafta).WithMany(p => p.YildatOdemes)
+                .HasForeignKey(d => d.DaireHaftaId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("yildat_odeme_daire_hafta_id_fkey");
+
+            entity.HasOne(d => d.Yildat).WithMany(p => p.YildatOdemes)
+                .HasForeignKey(d => d.YildatId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("yildat_odeme_yildat_id_fkey");
         });
         modelBuilder.HasSequence("base_cache_signaling_assets");
         modelBuilder.HasSequence("base_cache_signaling_default");

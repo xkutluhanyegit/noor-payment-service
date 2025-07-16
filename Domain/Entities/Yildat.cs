@@ -230,4 +230,8 @@ public partial class Yildat:IEntity
     /// Yedek
     /// </summary>
     public string? Bos { get; set; }
+
+    public virtual DaireHaftum? DaireHafta { get; set; }
+
+    public virtual ICollection<YildatOdeme> YildatOdemes { get; set; } = new List<YildatOdeme>();
 }

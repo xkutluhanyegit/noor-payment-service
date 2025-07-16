@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Utilities.Results.Interfaces;
+using Infrastructure.Persistence.Models.YildatDto;
 
 namespace Application.Interfaces
 {
@@ -11,5 +12,9 @@ namespace Application.Interfaces
     {
         Task<IDataResult<IEnumerable<Yildat>>> GetAllYildatAsync();
         Task<IDataResult<Yildat>> GetUserByTckn(string tckn);
+
+        Task<IDataResult<IEnumerable<yildatQueryDto>>> GetYildatsByTcknAsync(string tckn);
+
+        
     }
 }

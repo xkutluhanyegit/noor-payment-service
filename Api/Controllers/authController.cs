@@ -8,6 +8,7 @@ using Application.Dtos.Response.TokenResponse;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Utilities.Results.Implementations;
+using Infrastructure.ExternalServices.KizilbukSmsService;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,44 +21,31 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     public class authController : ControllerBase
     {
-        private readonly IYildatService _yildatService;
         private readonly IVerificationSmsCodeService _verificationSmsCodeService;
         private readonly ITokenService _tokenService;
         private readonly IMemoryCache _memoryCache;
+        
+        private readonly IAuthRequestCodeService _authRequestCodeService;
 
 
-        public authController(IYildatService yildatService,IVerificationSmsCodeService verificationSmsCodeService,ITokenService tokenService,IMemoryCache memoryCache)
+        public authController(IYildatService yildatService,IVerificationSmsCodeService verificationSmsCodeService,ITokenService tokenService,IMemoryCache memoryCache, IKizilbukSmsService kizilbukSmsService, IAuthRequestCodeService authRequestCodeService)
         {
-            _yildatService = yildatService;
+            
             _verificationSmsCodeService = verificationSmsCodeService;
             _tokenService = tokenService;
-            _memoryCache = memoryCache;        
+            _memoryCache = memoryCache;
+            _authRequestCodeService = authRequestCodeService;
         }
 
         [HttpPost("request-code")]
         public async Task<IActionResult> request_code([FromBody] RequestCode requestCode)
         {
-            var result = await _yildatService.GetUserByTckn(requestCode.tckn);
+            var result = await _authRequestCodeService.RequestCodeAsync(requestCode.tckn);
             if (!result.Success)
             {
-                return BadRequest(new ErrorDataResult<Yildat>(Messages.NotFoundTCKN));
+                return BadRequest(new ErrorDataResult<TokenResponse>(result.Message));
             }
-
-            var smsCode = _verificationSmsCodeService.GenerateCode(); // Generate Sms Code
-            //SMS Service
-            Console.WriteLine("[SMS] ->"+smsCode);
-
-            _verificationSmsCodeService.SaveCode(result.Data.TelNo,smsCode); //Memorycache Telno ve Code 
-
-            var smsToken =  _tokenService.GenerateSmsVerificationToken(requestCode.tckn); // Generate Token
-
-            var response = new TokenResponse(){
-                ExpireInMinutes = "5",
-                Token = smsToken,
-                TokenType = "Bearer",
-                Description = "Tel No: "+result.Data.TelNo+" doğrulama kodu gönderildi."
-            };
-            return Ok(new SuccessDataResult<TokenResponse>(response,Messages.SuccessToken));
+            return Ok(result);
         }
 
         [Authorize(Policy = "SmsVerificationOnly")]
@@ -77,14 +65,12 @@ namespace Api.Controllers
             }
 
             var isValid = _verificationSmsCodeService.ValidateCode(phoneNumber,verifyCode.smsCode);
-            
-            //Test Kontroller sonra silinecek
-            if (verifyCode.smsCode == "111111")
-            {
-                isValid = true;
-            }
-            
-
+           
+            // //Test Kontroller sonra silinecek
+            // if (verifyCode.smsCode == "111111")
+            // {
+            //     isValid = true;
+            // }            
             if (!isValid)
             {
                 return BadRequest(new ErrorDataResult<TokenResponse>(Messages.InvalidSmsCode));
