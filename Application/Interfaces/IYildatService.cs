@@ -12,7 +12,6 @@ namespace Application.Interfaces
     {
         Task<IDataResult<IEnumerable<Yildat>>> GetAllYildatAsync();
         Task<IDataResult<Yildat>> GetUserByTckn(string tckn);
-
         Task<IDataResult<IEnumerable<yildatQueryDto>>> GetYildatsByTcknAsync(string tckn);
 
         

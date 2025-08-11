@@ -66,6 +66,11 @@ public partial class YildatOdeme:IEntity
     /// </summary>
     public int? DaireHaftaId { get; set; }
 
+    /// <summary>
+    /// Tahakkuk Tutarı
+    /// </summary>
+    public double? TahTutar { get; set; }
+
     public virtual DaireHaftum? DaireHafta { get; set; }
 
     public virtual Yildat? Yildat { get; set; }

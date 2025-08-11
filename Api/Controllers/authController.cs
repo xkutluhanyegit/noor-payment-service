@@ -24,9 +24,7 @@ namespace Api.Controllers
         private readonly IVerificationSmsCodeService _verificationSmsCodeService;
         private readonly ITokenService _tokenService;
         private readonly IMemoryCache _memoryCache;
-        
         private readonly IAuthRequestCodeService _authRequestCodeService;
-
 
         public authController(IYildatService yildatService,IVerificationSmsCodeService verificationSmsCodeService,ITokenService tokenService,IMemoryCache memoryCache, IKizilbukSmsService kizilbukSmsService, IAuthRequestCodeService authRequestCodeService)
         {
@@ -43,7 +41,7 @@ namespace Api.Controllers
             var result = await _authRequestCodeService.RequestCodeAsync(requestCode.tckn);
             if (!result.Success)
             {
-                return BadRequest(new ErrorDataResult<TokenResponse>(result.Message));
+                return Ok(new ErrorDataResult<TokenResponse>(result.Message));
             }
             return Ok(result);
         }
@@ -70,7 +68,8 @@ namespace Api.Controllers
             // if (verifyCode.smsCode == "111111")
             // {
             //     isValid = true;
-            // }            
+            // }  
+                      
             if (!isValid)
             {
                 return BadRequest(new ErrorDataResult<TokenResponse>(Messages.InvalidSmsCode));

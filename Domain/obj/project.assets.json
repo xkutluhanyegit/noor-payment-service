@@ -2154,11 +2154,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kutluhan.yegit\\Desktop\\noor-payment-service\\Domain\\Domain.csproj",
+      "projectUniqueName": "C:\\Users\\kutluhan.yegit\\Desktop\\Entegrasyonlar\\noor-payment-service\\Domain\\Domain.csproj",
       "projectName": "Domain",
-      "projectPath": "C:\\Users\\kutluhan.yegit\\Desktop\\noor-payment-service\\Domain\\Domain.csproj",
+      "projectPath": "C:\\Users\\kutluhan.yegit\\Desktop\\Entegrasyonlar\\noor-payment-service\\Domain\\Domain.csproj",
       "packagesPath": "C:\\Users\\kutluhan.yegit\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kutluhan.yegit\\Desktop\\noor-payment-service\\Domain\\obj\\",
+      "outputPath": "C:\\Users\\kutluhan.yegit\\Desktop\\Entegrasyonlar\\noor-payment-service\\Domain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\kutluhan.yegit\\AppData\\Roaming\\NuGet\\NuGet.Config"

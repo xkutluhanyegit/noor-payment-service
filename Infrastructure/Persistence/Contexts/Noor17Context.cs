@@ -22,9 +22,11 @@ public partial class Noor17Context : DbContext
 
     public virtual DbSet<YildatOdeme> YildatOdemes { get; set; }
 
+    public virtual DbSet<YildatPaymentResponse> YildatPaymentResponses { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=192.168.228.37;Database=NOOR17;Username=webadmin;Password=Sn569632");
+        => optionsBuilder.UseNpgsql("Host=192.168.228.37;Port=5432;Database=NOOR17;Username=webadmin;Password=Sn569632");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -278,6 +280,9 @@ public partial class Noor17Context : DbContext
             entity.Property(e => e.SatirNo)
                 .HasComment("Satır No")
                 .HasColumnName("satir_no");
+            entity.Property(e => e.TahTutar)
+                .HasComment("Tahakkuk Tutarı")
+                .HasColumnName("tah_tutar");
             entity.Property(e => e.Tutar)
                 .HasComment("Ödeme Tutarı")
                 .HasColumnName("tutar");
@@ -301,6 +306,47 @@ public partial class Noor17Context : DbContext
                 .HasForeignKey(d => d.YildatId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("yildat_odeme_yildat_id_fkey");
+        });
+
+        modelBuilder.Entity<YildatPaymentResponse>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("yildat_payment_response_pkey");
+
+            entity.ToTable("yildat_payment_response");
+
+            entity.HasIndex(e => e.Hash, "yildat_payment_response_hash_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Amount)
+                .HasPrecision(10, 2)
+                .HasColumnName("amount");
+            entity.Property(e => e.Authcode)
+                .HasMaxLength(20)
+                .HasColumnName("authcode");
+            entity.Property(e => e.Clientid).HasColumnName("clientid");
+            entity.Property(e => e.Clientip).HasColumnName("clientip");
+            entity.Property(e => e.Currency).HasColumnName("currency");
+            entity.Property(e => e.Errmsg).HasColumnName("errmsg");
+            entity.Property(e => e.Hash).HasColumnName("hash");
+            entity.Property(e => e.Hashalgorithm)
+                .HasMaxLength(20)
+                .HasColumnName("hashalgorithm");
+            entity.Property(e => e.Mdstatus).HasColumnName("mdstatus");
+            entity.Property(e => e.Oid)
+                .HasMaxLength(100)
+                .HasColumnName("oid");
+            entity.Property(e => e.Procreturncode)
+                .HasMaxLength(10)
+                .HasColumnName("procreturncode");
+            entity.Property(e => e.Response)
+                .HasMaxLength(50)
+                .HasColumnName("response");
+            entity.Property(e => e.Storetype)
+                .HasMaxLength(50)
+                .HasColumnName("storetype");
+            entity.Property(e => e.Transid)
+                .HasMaxLength(100)
+                .HasColumnName("transid");
         });
         modelBuilder.HasSequence("base_cache_signaling_assets");
         modelBuilder.HasSequence("base_cache_signaling_default");

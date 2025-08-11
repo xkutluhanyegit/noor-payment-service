@@ -22,7 +22,8 @@ namespace Infrastructure.Persistence.Repositories.GenericRepository
         }
         public Task AddAsync(T entity)
         {
-            throw new NotImplementedException();
+            _dbSet.Add(entity);
+            return _context.SaveChangesAsync();
         }
 
         public Task DeleteAsync(string id)
